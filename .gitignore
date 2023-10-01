@@ -16,3 +16,4 @@ local.properties
 .idea
 api-82-sources.jar
 restart.cmd
+app/release/

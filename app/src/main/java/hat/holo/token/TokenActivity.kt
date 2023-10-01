@@ -31,6 +31,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.core.content.getSystemService
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import hat.holo.token.models.AccountInfo
+import hat.holo.token.models.DeviceInfo
 import kotlinx.coroutines.delay
 
 val textColor = Color(0xFF424242)
@@ -45,6 +46,7 @@ class TokenActivity : ComponentActivity() {
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         setTheme(androidx.appcompat.R.style.Theme_AppCompat_Light_NoActionBar)
         val accountInfo = intent.getSerializableExtra("accountInfo") as AccountInfo
+        val deviceInfo = intent.getSerializableExtra("deviceInfo") as DeviceInfo
         setContent {
             rememberSystemUiController().setStatusBarColor(Color.White)
             MaterialTheme(
@@ -53,7 +55,7 @@ class TokenActivity : ComponentActivity() {
                 ),
                 content = {
                     Surface {
-                        Content(accountInfo)
+                        Content(accountInfo, deviceInfo)
                     }
                 }
             )
@@ -70,7 +72,7 @@ private fun TokenActivity.showDialog(msg: String) = runOnUiThread {
 }
 
 @Composable
-private fun TokenActivity.Content(accountInfo: AccountInfo) = Column(
+private fun TokenActivity.Content(accountInfo: AccountInfo, deviceInfo: DeviceInfo) = Column(
     modifier = Modifier.fillMaxSize()
 ) {
     TopAppBar()
@@ -79,6 +81,7 @@ private fun TokenActivity.Content(accountInfo: AccountInfo) = Column(
     ) {
         var grantSToken by remember { mutableStateOf(false) }
         var showDoneIcon by remember { mutableStateOf(false) }
+        var getDeviceInfo by remember { mutableStateOf(false) }
         CustomCheckBox(
             checked = true,
             onCheckedChange = {},
@@ -100,6 +103,15 @@ private fun TokenActivity.Content(accountInfo: AccountInfo) = Column(
                 appendLine(" · 其它可以通过米游社APP完成的操作")
             } // TODO: More description
         )
+        CustomCheckBox(
+            checked = getDeviceInfo,
+            onCheckedChange = { v -> getDeviceInfo = v },
+            name = "Device",
+            permissions = buildAnnotatedString {
+                appendLine("此信息可以用于:")
+                appendLine(" · 一定程度下绕过风控")
+            }
+        )
         Divider()
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -115,6 +127,10 @@ private fun TokenActivity.Content(accountInfo: AccountInfo) = Column(
                                 put("stuid", accountInfo.uid)
                                 put("mid", accountInfo.mid)
                                 put("stoken", accountInfo.sToken)
+                            }
+                            if (getDeviceInfo) {
+                                put("x-rpc-device_id", deviceInfo.id)
+                                put("x-rpc-device_fp", deviceInfo.fp)
                             }
                         }.map { (k, v) -> "$k=$v" }.joinToString(";")
                         val clip = ClipData.newPlainText(null, authStr)

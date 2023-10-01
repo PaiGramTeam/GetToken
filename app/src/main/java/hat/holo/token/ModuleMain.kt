@@ -50,6 +50,7 @@ class ModuleMain : IXposedHookLoadPackage, IXposedHookZygoteInit {
                     AppUtils.init(classLoader)
                     AccountManager.init(classLoader)
                     val app = p.args[0] as Application
+                    DeviceUtils.init(app.applicationContext)
                     appendToClassPath(app.applicationContext)
                 }
             })
@@ -74,11 +75,13 @@ class ModuleMain : IXposedHookLoadPackage, IXposedHookZygoteInit {
                                 val intent = Intent(ctx, LoaderActivity::class.java)
                                 intent.putExtra("accountInfo", AccountManager.accountInfo)
                                 intent.putExtra("dexPath", modulePath)
+                                intent.putExtra("deviceInfo", DeviceUtils.deviceInfo)
                                 ctx.startActivity(intent)
                             } else {
                                 val intent = Intent()
                                 intent.setClassName("hat.holo.token", "hat.holo.token.TokenActivity")
                                 intent.putExtra("accountInfo", AccountManager.accountInfo)
+                                intent.putExtra("deviceInfo", DeviceUtils.deviceInfo)
                                 ctx.startActivity(intent)
                             }
                         } else {
