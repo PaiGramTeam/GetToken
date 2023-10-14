@@ -50,7 +50,6 @@ class ModuleMain : IXposedHookLoadPackage, IXposedHookZygoteInit {
                     AppUtils.init(classLoader)
                     AccountManager.init(classLoader)
                     val app = p.args[0] as Application
-                    DeviceUtils.init(app.applicationContext)
                     appendToClassPath(app.applicationContext)
                 }
             })
@@ -71,6 +70,7 @@ class ModuleMain : IXposedHookLoadPackage, IXposedHookZygoteInit {
                     tokenBtn.layoutParams = ViewGroup.LayoutParams(size, size)
                     tokenBtn.setOnClickListener {
                         if (AccountManager.isLogin) {
+                            DeviceUtils.init(ctx)
                             if (isPatch) {
                                 val intent = Intent(ctx, LoaderActivity::class.java)
                                 intent.putExtra("accountInfo", AccountManager.accountInfo)

@@ -79,9 +79,7 @@ private fun TokenActivity.Content(accountInfo: AccountInfo, deviceInfo: DeviceIn
     Column(
         modifier = Modifier.padding(15.dp)
     ) {
-        var grantSToken by remember { mutableStateOf(false) }
         var showDoneIcon by remember { mutableStateOf(false) }
-        var getDeviceInfo by remember { mutableStateOf(false) }
         CustomCheckBox(
             checked = true,
             onCheckedChange = {},
@@ -93,8 +91,8 @@ private fun TokenActivity.Content(accountInfo: AccountInfo, deviceInfo: DeviceIn
             } // TODO: More description
         )
         CustomCheckBox(
-            checked = grantSToken,
-            onCheckedChange = { v -> grantSToken = v },
+            checked = true,
+            onCheckedChange = {},
             name = "SToken",
             permissions = buildAnnotatedString {
                 appendLine("此令牌可以用于:")
@@ -104,8 +102,8 @@ private fun TokenActivity.Content(accountInfo: AccountInfo, deviceInfo: DeviceIn
             } // TODO: More description
         )
         CustomCheckBox(
-            checked = getDeviceInfo,
-            onCheckedChange = { v -> getDeviceInfo = v },
+            checked = true,
+            onCheckedChange = {},
             name = "Device",
             permissions = buildAnnotatedString {
                 appendLine("此信息可以用于:")
@@ -123,15 +121,11 @@ private fun TokenActivity.Content(accountInfo: AccountInfo, deviceInfo: DeviceIn
                         val authStr = buildMap {
                             put("ltuid", accountInfo.uid)
                             put("ltoken", accountInfo.lToken)
-                            if (grantSToken) {
-                                put("stuid", accountInfo.uid)
-                                put("mid", accountInfo.mid)
-                                put("stoken", accountInfo.sToken)
-                            }
-                            if (getDeviceInfo) {
-                                put("x-rpc-device_id", deviceInfo.id)
-                                put("x-rpc-device_fp", deviceInfo.fp)
-                            }
+                            put("stuid", accountInfo.uid)
+                            put("mid", accountInfo.mid)
+                            put("stoken", accountInfo.sToken)
+                            put("x-rpc-device_id", deviceInfo.id)
+                            put("x-rpc-device_fp", deviceInfo.fp)
                         }.map { (k, v) -> "$k=$v" }.joinToString(";")
                         val clip = ClipData.newPlainText(null, authStr)
                         getSystemService<ClipboardManager>()!!.setPrimaryClip(clip)
