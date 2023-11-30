@@ -53,12 +53,12 @@ class ModuleMain : IXposedHookLoadPackage, IXposedHookZygoteInit {
                 }
             })
             val u = loadClass("com.mihoyo.hyperion.user_profile.UserProfileFragment")
-            val rng = loadClass("rn.g")  // FragmentUserProfileBinding.java
             findAndHookMethod(u, "onViewCreated", android.view.View::class.java, android.os.Bundle::class.java, object : XC_MethodHook() {
                 override fun afterHookedMethod(p: MethodHookParam) {
                     val getBinding = u.getDeclaredMethod("getBinding")
                     getBinding.isAccessible = true
                     val bindingInstance = getBinding.invoke(p.thisObject)
+                    val rng = getBinding.returnType  // FragmentUserProfileBinding.java
                     val getLinearLayout = rng.getDeclaredField("b")
                     getLinearLayout.isAccessible = true
                     val linearLayout = getLinearLayout.get(bindingInstance) as LinearLayout
