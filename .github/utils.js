@@ -8,11 +8,15 @@ const repo = "PaiGramTeam/GetToken"
 const token = process.env.GHP_TOKEN
 
 const getAppVersion = async () => {
-    const latestVersionRsp = await axios.get("https://api-takumi.mihoyo.com/ptolemaios/api/getLatestRelease", {
+    const latestVersionRsp = await axios.get("https://api-takumi.miyoushe.com/ptolemaios_api/api/getLatestRelease", {
         headers: {
             "x-rpc-client_type": "2",
-            "x-rpc-app_version": "2.37.1",
-            "x-rpc-channel": "miyousheluodi"
+            "x-rpc-app_version": "2.67.1",
+            "x-rpc-channel": "miyousheluodi",
+            "x-rpc-h265_supported": "1",
+            "referer": "https://app.mihoyo.com",
+            "x-rpc-verify_key": "bll8iq97cem8",
+            "user-agent": "okhttp/4.9.3"
         }
     })
     return latestVersionRsp.data.data
