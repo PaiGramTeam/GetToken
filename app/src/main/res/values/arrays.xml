@@ -2,5 +2,6 @@
 <resources>
     <string-array name="xposedscope">
         <item>com.mihoyo.hyperion</item>
+        <item>com.mihoyo.hoyolab</item>
     </string-array>
 </resources>
