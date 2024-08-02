@@ -50,3 +50,11 @@ jobs:
       run: npm install axios@0.27.2
     - name: Run post build script
       run: node .github/postbuild.js
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: 3.12
+    - name: Send to Telegram
+      run: |
+        python -m pip install -r .github/scripts/requirements.txt
+        python .github/scripts/upload.py ${{ secrets.HELPER_BOT_TOKEN }} ${{ secrets.HELPER_BOT_TARGET }}
