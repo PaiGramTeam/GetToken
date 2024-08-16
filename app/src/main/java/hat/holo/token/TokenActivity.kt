@@ -79,7 +79,7 @@ private fun TokenActivity.Content(deviceInfo: DeviceInfo, accountInfo: AccountIn
     Column(
         modifier = Modifier.padding(15.dp)
     ) {
-        var grantSToken by remember { mutableStateOf(false) }
+        var grantSToken by remember { mutableStateOf(true) }
         var showDoneIcon by remember { mutableStateOf(false) }
         CustomCheckBox(
             checked = true,
@@ -100,8 +100,8 @@ private fun TokenActivity.Content(deviceInfo: DeviceInfo, accountInfo: AccountIn
             } // TODO: More description
         )
         CustomCheckBox(
-            checked = grantSToken,
-            onCheckedChange = { v -> grantSToken = v },
+            checked = true,
+            onCheckedChange = {},
             name = "SToken",
             permissions = buildAnnotatedString {
                 appendLine("此令牌可以用于:")
@@ -126,8 +126,8 @@ private fun TokenActivity.Content(deviceInfo: DeviceInfo, accountInfo: AccountIn
                                 put("mid", accountInfo.mid)
                                 put("stoken", accountInfo.sToken)
                             }
-                            put("device_id", deviceInfo.id)
-                            put("device_fp", deviceInfo.fingerprint)
+                            put("x-rpc-device_id", deviceInfo.id)
+                            put("x-rpc-device_fp", deviceInfo.fingerprint)
                         }.map { (k, v) -> "$k=$v" }.joinToString(";")
                         val clip = ClipData.newPlainText(null, authStr)
                         getSystemService<ClipboardManager>()!!.setPrimaryClip(clip)
