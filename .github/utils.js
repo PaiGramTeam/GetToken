@@ -4,7 +4,7 @@ const axios = require("axios").create({
     maxBodyLength: Infinity
 })
 
-const repo = "HolographicHat/GetToken"
+const repo = "PaiGramTeam/GetToken"
 const token = process.env.GHP_TOKEN
 
 const getAppVersion = async () => {
