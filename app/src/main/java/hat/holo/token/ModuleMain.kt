@@ -48,7 +48,6 @@ class ModuleMain : IXposedHookLoadPackage, IXposedHookZygoteInit {
                 override fun afterHookedMethod(p: MethodHookParam) {
                     val app = p.args[0] as Application
                     AppUtils.init(classLoader)
-                    DeviceManager.init(classLoader, app.applicationContext)
                     AccountManager.init(classLoader)
                     appendToClassPath(app.applicationContext)
                 }
@@ -68,6 +67,7 @@ class ModuleMain : IXposedHookLoadPackage, IXposedHookZygoteInit {
                     tokenBtn.scaleType = ImageView.ScaleType.FIT_XY
                     tokenBtn.setOnClickListener {
                         if (AccountManager.isLogin) {
+                            DeviceManager.init(classLoader, ctx)
                             if (isPatch) {
                                 val intent = Intent(ctx, LoaderActivity::class.java)
                                 intent.putExtra("accountInfo", AccountManager.accountInfo)
