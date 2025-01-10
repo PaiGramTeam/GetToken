@@ -2,13 +2,18 @@ package hat.holo.token
 
 import android.annotation.SuppressLint
 import android.app.Application
+import android.content.ActivityNotFoundException
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.res.XResources
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.annotation.Keep
+import androidx.core.content.getSystemService
 import dalvik.system.BaseDexClassLoader
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.IXposedHookZygoteInit
@@ -16,6 +21,8 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers.findAndHookMethod
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam
+import hat.holo.token.models.AccountInfo
+import hat.holo.token.models.DeviceInfo
 import hat.holo.token.utils.*
 import java.io.File
 import kotlin.math.roundToInt
@@ -37,6 +44,29 @@ class ModuleMain : IXposedHookLoadPackage, IXposedHookZygoteInit {
         val zDexPathList = oPathList.javaClass
         val mAddDexPath = zDexPathList.getDeclaredMethod("addDexPath", String::class.java, File::class.java)
         mAddDexPath.setAccess().invoke(oPathList, modulePath, ctx.cacheDir)
+    }
+
+    private fun showDialog(ctx: Context, text: String) {
+        val duration = Toast.LENGTH_SHORT
+        Toast.makeText(ctx, text, duration).show()
+    }
+
+    private fun copyCK(ctx: Context, accountInfo: AccountInfo, deviceInfo: DeviceInfo) = runCatching {
+        val authStr = buildMap {
+            put("ltuid", accountInfo.uid)
+            put("ltoken", accountInfo.lToken)
+            put("stuid", accountInfo.uid)
+            put("mid", accountInfo.mid)
+            put("stoken", accountInfo.sToken)
+            put("x-rpc-device_id", deviceInfo.id)
+            put("x-rpc-device_fp", deviceInfo.fingerprint)
+        }.map { (k, v) -> "$k=$v" }.joinToString(";")
+        val clip = ClipData.newPlainText(null, authStr)
+        ctx.getSystemService<ClipboardManager>()!!.setPrimaryClip(clip)
+    }.onFailure {
+        showDialog(ctx, "复制失败")
+    }.onSuccess {
+        showDialog(ctx, "复制成功")
     }
 
     @SuppressLint("DiscouragedApi")
@@ -68,7 +98,7 @@ class ModuleMain : IXposedHookLoadPackage, IXposedHookZygoteInit {
                     tokenBtn.setOnClickListener {
                         if (AccountManager.isLogin) {
                             DeviceManager.init(classLoader, ctx)
-                            if (isPatch) {
+                            if (isPatch && false) {
                                 val intent = Intent(ctx, LoaderActivity::class.java)
                                 intent.putExtra("accountInfo", AccountManager.accountInfo)
                                 intent.putExtra("deviceInfo", DeviceManager.deviceInfo)
@@ -79,7 +109,11 @@ class ModuleMain : IXposedHookLoadPackage, IXposedHookZygoteInit {
                                 intent.setClassName("hat.holo.token", "hat.holo.token.TokenActivity")
                                 intent.putExtra("accountInfo", AccountManager.accountInfo)
                                 intent.putExtra("deviceInfo", DeviceManager.deviceInfo)
-                                ctx.startActivity(intent)
+                                try {
+                                    ctx.startActivity(intent)
+                                } catch (_: ActivityNotFoundException) {
+                                    copyCK(ctx, AccountManager.accountInfo, DeviceManager.deviceInfo)
+                                }
                             }
                         } else {
                             AppUtils.showToast("未登录")
