@@ -20,8 +20,9 @@ jobs:
       uses: actions/setup-java@v5
       with:
         java-version: '21'
-        distribution: 'temurin'
-        cache: gradle
+        distribution: 'zulu'
+    - name: Set up Gradle
+      uses: gradle/actions/setup-gradle@v5
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Build with Gradle
