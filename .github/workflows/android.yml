@@ -48,11 +48,15 @@ jobs:
       run: |
         python -m pip install -r .github/scripts/requirements.txt
         python .github/scripts/upload.py ${{ secrets.HELPER_BOT_TOKEN }} ${{ secrets.HELPER_BOT_TARGET }}
-    - name: Set up Node 16
-      uses: actions/setup-node@v5
+    - name: Get Apk Info
+      id: apk
+      uses: JantHsueh/get-apk-info-action@master
       with:
-        node-version: 16
-    - name: Install dependencies
-      run: npm install axios@0.27.2
-    - name: Run post build script
-      run: node .github/postbuild.js
+        apkPath: miyoushe.apk
+    - name: Release
+      uses: softprops/action-gh-release@v3
+      with:
+        tag_name: ${{ steps.apk.outputs.versionNum }}
+        working_directory: out
+        files: |
+          *.apk

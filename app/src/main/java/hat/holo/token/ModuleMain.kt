@@ -82,8 +82,7 @@ class ModuleMain : IXposedHookLoadPackage, IXposedHookZygoteInit {
                     appendToClassPath(app.applicationContext)
                 }
             })
-            val fragmentKlass = loadClass("com.mihoyo.hyperion.user_profile.UserProfileFragment")
-            findAndHookMethod(fragmentKlass, "onViewCreated", android.view.View::class.java, android.os.Bundle::class.java, object : XC_MethodHook() {
+            val hook = object : XC_MethodHook() {
                 override fun afterHookedMethod(p: MethodHookParam) {
                     val fragmentBinding = p.thisObject.invokeMethod<Any>("getBinding")
                     val linearLayout = fragmentBinding.visitField<LinearLayout>("b")
@@ -126,7 +125,11 @@ class ModuleMain : IXposedHookLoadPackage, IXposedHookZygoteInit {
                         if (view.id == -1) view.id = XResources.getFakeResId("b5AaLhI6WDlkTMIrRA$i")
                     }
                 }
-            })
+            }
+            val fragmentKlass = loadClass("com.mihoyo.hyperion.user_profile.UserProfileFragment")
+            findAndHookMethod(fragmentKlass, "onViewCreated", android.view.View::class.java, android.os.Bundle::class.java, hook)
+            val fragmentKlass2 = loadClass("com.mihoyo.hyperion.user_profile.PreloadUserProfileFragment")
+            findAndHookMethod(fragmentKlass2, "onViewCreated", android.view.View::class.java, android.os.Bundle::class.java, hook)
         }
         XposedBridge.log("Module initialized!")
     }
